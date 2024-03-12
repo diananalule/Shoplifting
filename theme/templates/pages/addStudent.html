@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/dist/output.css" rel="stylesheet">
+    <title>atVault</title>
+</head>
+<body>
+    <div class="w-full h-screen py-4 px-14">
+        <div class="flex items-center justify-between w-full">
+            <div>
+                <img src="../assets/atvault.svg" alt="" class="w-36">
+            </div>
+            <div class="flex items-center justify-center px-1 py-1 rounded-full shadow-lg shadow-gray-200">
+                <div class="flex items-center gap-2">
+                    <p class="ml-3 capitalize">Lutaaya Jamil</p>
+                    <span class="text-lg"><i class="leading-3 fi fi-rr-user"></i></span>
+                    <button title="Log out" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-lg hover:bg-red-200 hover:text-red-500"><i class="leading-3 fi fi-br-power"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-10 mt-10 h-4/5">
+            <div class="flex flex-col gap-4">
+                <span class="flex items-center gap-3 group"><a href="home.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 hover:text-white rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack">Capture</p></span>
+                <span class="flex items-center gap-3 group"><a href="attendance.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack">Attendance</p></span>
+                <span class="flex items-center gap-3 group"><a href="students.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user"></i></button></a><p class="text-white group-hover:text-myBlack">Students</p></span>
+                <span class="flex items-center gap-3 group"><a href="addStudent.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 bg-myBlue text-white"><i class="leading-3 fi fi-sr-user-add"></i></button></a><p class="text-white group-hover:text-myBlack">Add</p></span>
+            </div>
+            <div class="w-full h-full overflow-y-scroll p-6 border border-gray-200 rounded-3xl">
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold">Add Student</h1>
+                </div>
+                <div class="w-full">
+                    <form action="" method="post">
+                        <div class="w-full">
+                            <div class="grid grid-cols-4 gap-8">
+                                <div class="flex flex-col">
+                                    <input type="text" name="" id="" required placeholder="Name" class="capitalize px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <input type="text" name="" id="" required placeholder="Student No" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <select name="" id="" required class="px-4 mb-4 text-gray-400 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                        <option value="" class="text-myBlack">Gander</option>
+                                        <option value="male" class="text-myBlack">Male</option>
+                                        <option value="female" class="text-myBlack">Female</option>
+                                    </select>
+                                    <input type="text" name="" id="" required placeholder="Course" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                </div>
+                                <div class="bg-gray-200 size-56 rounded-xl relative">
+                                    <video id="video" class="w-full h-full object-cover bg-gray-200 rounded-xl" autoplay></video>
+                                    <button id="capture-btn" type="button" class="bg-myBlue absolute bottom-2 right-2 text-white rounded-full size-8 flex justify-center items-center"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button>   
+                                </div>
+                                <div id="image-container" class="col-span-2 flex flex-wrap gap-4">
+
+                                </div>
+                            </div>
+                            <button type="submit" class="w-3/12 mt-10 text-white rounded-full bg-myBlue h-11">Add Student</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        const videoElement = document.getElementById('video');
+        const captureButton = document.getElementById('capture-btn');
+        const imageContainer = document.getElementById('image-container');
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function(stream) {
+                videoElement.srcObject = stream;
+            })
+            .catch(function(err) {
+                console.error('Error accessing camera:', err);
+            });
+
+        captureButton.addEventListener('click', function() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            const imgSrc = canvas.toDataURL('image/png');
+
+            const imageBox = document.createElement('div');
+            imageBox.classList.add('relative', 'size-24', 'rounded-lg');
+            const img = document.createElement('img');
+            img.classList.add('object-cover', 'h-full', 'w-full', 'rounded-lg')
+            img.src = imgSrc;
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = 'del';
+            removeBtn.classList.add('remove-btn', 'bg-white','text-myBlack', 'rounded-full','text-xs','p-1', 'absolute', 'top-1', 'right-1');
+            removeBtn.addEventListener('click', function() {
+                imageContainer.removeChild(imageBox);
+            });
+            imageBox.appendChild(img);
+            imageBox.appendChild(removeBtn);
+            imageContainer.appendChild(imageBox);
+
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'images';
+            hiddenInput.value = imgSrc;
+            document.getElementById('register-form').appendChild(hiddenInput);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/dist/output.css" rel="stylesheet">
+    <title>atVault</title>
+</head>
+<body>
+    <div class="w-full h-screen py-4 px-14">
+        <div class="flex items-center justify-between w-full">
+            <div>
+                <img src="../assets/atvault.svg" alt="" class="w-36">
+            </div>
+            <div class="flex items-center justify-center px-1 py-1 rounded-full shadow-lg shadow-gray-200">
+                <div class="flex items-center gap-2">
+                    <p class="ml-3 capitalize">Lutaaya Jamil</p>
+                    <span class="text-lg"><i class="leading-3 fi fi-rr-user"></i></span>
+                    <button title="Log out" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-lg hover:bg-red-200 hover:text-red-500"><i class="leading-3 fi fi-br-power"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-10 mt-10 h-4/5">
+            <div class="flex flex-col gap-4">
+                <span class="flex items-center gap-3 group"><a href="home.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 text-white rounded-full shadow-lg shadow-gray-200 bg-myBlue"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack sele">Capture</p></span>
+                <span class="flex items-center gap-3 group"><a href="attendance.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack sele">Attendance</p></span>
+                <span class="flex items-center gap-3 group"><a href="students.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user"></i></button></a><p class="text-white group-hover:text-myBlack sele">Students</p></span>
+                <span class="flex items-center gap-3 group"><a href="addStudent.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user-add"></i></button></a><p class="text-white group-hover:text-myBlack sele">Add</p></span>
+            </div>
+            <div class="relative w-full h-full bg-gray-200 border border-gray-200 rounded-3xl">
+                <div class="absolute top-1/2 left-1/2 text-4xl">
+                    <button type="button"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button>
+                </div>
+                <div class="bg-red-400 w-full h-full rounded-3xl">
+                 <!-- place camera in this div     -->
+                </div>
+                <div class="absolute flex items-center justify-center h-10 px-4 text-white bg-green-500 rounded-full bottom-2 right-2">
+                    <p><i class="leading-3 fi fi-br-check"></i> Recorded</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
