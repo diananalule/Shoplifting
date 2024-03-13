@@ -17,7 +17,7 @@
             <div class="mt-10">
                  <form action="/sign_in" method="POST" class="flex flex-col gap-4">
                     {% csrf_token %}
-                     <input type="email" name="email" id="" required placeholder="Email" class="h-11 bg-gray-100 rounded-full placeholder:text-gray-400 px-4 focus:outline-gray-300 w-11/12">
+                     <input type="text" name="name" id="" required placeholder="Username" class="h-11 bg-gray-100 rounded-full placeholder:text-gray-400 px-4 focus:outline-gray-300 w-11/12">
                      <input type="password" name="password" id="" required placeholder="Password" class="h-11 bg-gray-100 rounded-full placeholder:text-gray-400 px-4 focus:outline-gray-300 w-11/12">
                      <p class="text-red-500 text-center w-11/12">Invalid Credantials</p>
                      <button type="submit" class="bg-myBlue text-white rounded-full h-11 w-11/12">Login</button>
