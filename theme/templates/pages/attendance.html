@@ -1,16 +1,18 @@
+{% load static %}
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/dist/output.css" rel="stylesheet">
+    <link href="/static/css/dist/output.css" rel="stylesheet">
     <title>atVault</title>
 </head>
 <body>
     <div class="w-full py-4 h-dvh px-14">
         <div class="flex items-center justify-between w-full">
             <div class="">
-                <img src="../assets/atvault.svg" alt="" class="w-36">
+                <img src="{% static '/assets/atvault.svg' %}" alt="" class="w-36">
             </div>
             <div class="flex items-center justify-center px-1 py-1 rounded-full shadow-lg shadow-gray-200">
                 <div class="flex items-center gap-2">
@@ -22,10 +24,10 @@
         </div>
         <div class="flex items-center gap-10 mt-10 h-4/5">
             <div class="flex flex-col gap-4">
-                <span class="flex items-center gap-3 group"><a href="home.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 hover:text-white rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack">Capture</p></span>
-                <span class="flex items-center gap-3 group"><a href="attendance.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 bg-myBlue text-white"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack">Attendance</p></span>
-                <span class="flex items-center gap-3 group"><a href="students.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user"></i></button></a><p class="text-white group-hover:text-myBlack">Students</p></span>
-                <span class="flex items-center gap-3 group"><a href="addStudent.html"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user-add"></i></button></a><p class="text-white group-hover:text-myBlack">Add</p></span>
+                <span class="flex items-center gap-3 group"><a href="home"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack sele">Capture</p></span>
+                <span class="flex items-center gap-3 group"><a href="attendance"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 text-white rounded-full shadow-lg shadow-gray-200  bg-myBlue"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack sele">Attendance</p></span>
+                <span class="flex items-center gap-3 group"><a href="students"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user"></i></button></a><p class="text-white group-hover:text-myBlack sele">Students</p></span>
+                <span class="flex items-center gap-3 group"><a href="add_student"><button type="button" class="flex items-center justify-center text-lg w-12 h-12 rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user-add"></i></button></a><p class="text-white group-hover:text-myBlack sele">Add</p></span>
             </div>
             <div class="w-full h-full p-6 border border-gray-200 rounded-3xl">
                 <div class="flex items-center justify-between mb-6">

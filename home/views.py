@@ -1,6 +1,6 @@
 import base64
 import io
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Student, Image
@@ -40,8 +40,20 @@ def save_student(request):
         uploaded_file = InMemoryUploadedFile(image_file, None, image_name, 'image/png', len(img_data), None)
         image = Image(student=student, image=uploaded_file)
         image.save()
+    students = Student.objects.all()
+    return redirect('/students')
 
-    return render(request, 'pages/students.html', {'user': request.user})
+def capture(request):
+    return render(request, 'pages/home.html')
+    
+def students(request):
+    students = Student.objects.all()
+    user = request.user
+    return render(request, 'pages/students.html', {'students': students, 'user': user})
+
+def attendance(request):
+    user = request.user
+    return render(request, 'pages/attendance.html', {'students': students, 'user': user})
     
 
 def sign_in_user(request):

@@ -25,3 +25,13 @@ class Image(models.Model):
 
     def __str__(self):
         return f"Image of {self.student.name} ({self.date_added})"
+    
+class Attendance(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    date = models.DateField(default=timezone.now)
+    time_in = models.TimeField(default=timezone.now)
+    time_out = models.TimeField(default=timezone.now)
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.name} - {self.date} - {self.time_in} - {self.time_out}"
