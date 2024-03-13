@@ -1,10 +1,16 @@
 import base64
 import io
+import json
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from .models import Student, Image
+from .models import Student, Image, Attendance
+import base64
+import os
 from django.core.files.base import ContentFile
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
+from deepface import DeepFace
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # Create your views here.
@@ -64,3 +70,31 @@ def sign_in_user(request):
         return render(request, 'index.html')
     else:
         return render(request, 'pages/home.html', {'user': user})
+    
+def verify(request):
+    data = json.loads(request.body.decode('utf-8'))
+    image_data_uri = data.get('image')
+    if image_data_uri:
+        _, base64_data = image_data_uri.split(',')
+        binary_data = base64.b64decode(base64_data)
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        save_path = os.path.join(current_directory, 'received_image.jpg')
+        with open(save_path, 'wb') as f:
+            f.write(binary_data) 
+        media_dir = 'media'
+        for root, dirs, files in os.walk(media_dir):
+            print(dirs)
+            for dir_name in dirs:
+                folder_path = os.path.join(root, dir_name)
+                for filename in os.listdir(folder_path):
+                    print(filename)
+                    if filename.endswith('.jpg') or filename.endswith('.png'):
+                        image_path = os.path.join(folder_path, filename)
+                        result = DeepFace.verify(image_path, os.path.join(current_directory, 'received_image.jpg'))
+                        if result['verified']:
+                            print(f"Image {image_path} matches with the saved image.")
+                        else:
+                            print(f"Image {image_path} does not match with the saved image.")
+        return JsonResponse({'message': 'Image saved successfully'})
+    else:
+        return JsonResponse({'error': 'No image data found in the request'}, status=400)
