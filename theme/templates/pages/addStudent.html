@@ -5,18 +5,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/dist/output.css" rel="stylesheet">
+    <link href="/static/css/dist/output.css" rel="stylesheet">
     <title>atVault</title>
 </head>
 <body>
     <div class="w-full h-screen py-4 px-14">
         <div class="flex items-center justify-between w-full">
             <div>
-                <img src="../assets/atvault.svg" alt="" class="w-36">
+                <img src="{% static '/assets/atvault.svg' %}" alt="" class="w-36">
             </div>
             <div class="flex items-center justify-center px-1 py-1 rounded-full shadow-lg shadow-gray-200">
                 <div class="flex items-center gap-2">
-                    <p class="ml-3 capitalize">Lutaaya Jamil</p>
+                    <p class="ml-3 capitalize">{{user.username}}</p>
                     <span class="text-lg"><i class="leading-3 fi fi-rr-user"></i></span>
                     <button title="Log out" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-lg hover:bg-red-200 hover:text-red-500"><i class="leading-3 fi fi-br-power"></i></button>
                 </div>
@@ -34,18 +34,19 @@
                     <h1 class="text-3xl font-bold">Add Student</h1>
                 </div>
                 <div class="w-full">
-                    <form action="" method="post">
+                    <form action="/save_student" method="post">
+                        {% csrf_token %}
                         <div class="w-full">
                             <div class="grid grid-cols-4 gap-8">
                                 <div class="flex flex-col">
-                                    <input type="text" name="" id="" required placeholder="Name" class="capitalize px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
-                                    <input type="text" name="" id="" required placeholder="Student No" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
-                                    <select name="" id="" required class="px-4 mb-4 text-gray-400 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <input type="text" name="name" id="" required placeholder="Name" class="capitalize px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <input type="text" name="student-number" id="" required placeholder="Student No" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <select name="gender" id="" required class="px-4 mb-4 text-gray-400 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
                                         <option value="" class="text-myBlack">Gander</option>
                                         <option value="male" class="text-myBlack">Male</option>
                                         <option value="female" class="text-myBlack">Female</option>
                                     </select>
-                                    <input type="text" name="" id="" required placeholder="Course" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
+                                    <input type="text" name="course" id="" required placeholder="Course" class="px-4 mb-4 bg-gray-100 rounded-full h-11 placeholder:text-gray-400 focus:outline-gray-300">
                                 </div>
                                 <div class="bg-gray-200 size-56 rounded-xl relative">
                                     <video id="video" class="w-full h-full object-cover bg-gray-200 rounded-xl" autoplay></video>
