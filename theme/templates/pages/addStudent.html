@@ -34,7 +34,7 @@
                     <h1 class="text-3xl font-bold">Add Student</h1>
                 </div>
                 <div class="w-full">
-                    <form action="/save_student" method="post">
+                    <form action="/save_student" method="post" id="register-form">
                         {% csrf_token %}
                         <div class="w-full">
                             <div class="grid grid-cols-4 gap-8">
@@ -52,8 +52,7 @@
                                     <video id="video" class="w-full h-full object-cover bg-gray-200 rounded-xl" autoplay></video>
                                     <button id="capture-btn" type="button" class="bg-myBlue absolute bottom-2 right-2 text-white rounded-full size-8 flex justify-center items-center"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button>   
                                 </div>
-                                <div id="image-container" class="col-span-2 flex flex-wrap gap-4">
-
+                                <div name="image-container" id="image-container" class="col-span-2 flex flex-wrap gap-4">
                                 </div>
                             </div>
                             <button type="submit" class="w-3/12 mt-10 text-white rounded-full bg-myBlue h-11">Add Student</button>
@@ -103,11 +102,19 @@
             imageBox.appendChild(removeBtn);
             imageContainer.appendChild(imageBox);
 
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'images';
-            hiddenInput.value = imgSrc;
-            document.getElementById('register-form').appendChild(hiddenInput);
+            const imagesInput = document.querySelector('input[name="images"]');
+            const existingImages = imagesInput ? JSON.parse(imagesInput.value) : [];
+            existingImages.push(imgSrc);
+
+            if(imagesInput){
+                imagesInput.value = JSON.stringify(existingImages);
+            }else{
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'images';
+                hiddenInput.value = JSON.stringify(existingImages);
+                document.getElementById('register-form').appendChild(hiddenInput);
+            }
         });
     </script>
 </body>

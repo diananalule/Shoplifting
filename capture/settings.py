@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'home',
+    
     'tailwind',
     'theme',
     'django_browser_reload'
@@ -137,3 +139,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TAILWIND_APP_NAME = 'theme'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10242880
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media/'
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

@@ -1,6 +1,11 @@
+import base64
+import io
 from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from .models import Student, Image
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # Create your views here.
 def home(request):
@@ -16,11 +21,26 @@ def add_student(request):
 @login_required
 def save_student(request):
     name = request.POST['name']
-    student_no = request.POST['student_no']
+    student_no = request.POST['student-number']
     course = request.POST['course']
     gender = request.POST['gender']
-    images = request.FILES['images']
-    print(name, student_no, course, gender, images)
+    images = request.POST['images']
+    student = Student.objects.create(name=name, student_no=student_no, course=course, gender=gender)
+    if images:
+        images = images.split(",")
+    for img_data in images:
+        img_data = img_data.strip()
+        try:
+            img_data = base64.b64decode(img_data) 
+        except base64.binascii.Error:
+            continue 
+        img_io = io.BytesIO(img_data)  
+        image_name = f"name/{student_no}_image.png"  
+        image_file = ContentFile(img_io.getvalue(), name=image_name)  
+        uploaded_file = InMemoryUploadedFile(image_file, None, image_name, 'image/png', len(img_data), None)
+        image = Image(student=student, image=uploaded_file)
+        image.save()
+
     return render(request, 'pages/students.html', {'user': request.user})
     
 
