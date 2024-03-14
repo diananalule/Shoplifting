@@ -165,8 +165,8 @@ for (let detection of detections) {
     liveView.appendChild(highlighter);
     liveView.appendChild(p);
     video.style.width = '100%'; 
-    video.style.height = '50%'; 
-    video.style.objectFit = 'fit';
+    video.style.height = '100%'; 
+    video.style.objectFit = 'cover';
     
 
     // Store drawn objects in memory so they are queued to delete at next call
