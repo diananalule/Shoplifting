@@ -131,18 +131,19 @@ for (let detection of detections) {
     "Confidence: " +
     Math.round(parseFloat(detection.categories[0].score) * 100) +
     "% .";
-    p.style =
-    "left: " +
-    (video.offsetWidth -
-        detection.boundingBox.width -
-        detection.boundingBox.originX) +
-    "px;" +
-    "top: " +
-    (detection.boundingBox.originY - 30) +
-    "px; " +
-    "width: " +
-    (detection.boundingBox.width - 10) +
-    "px;";
+    p.classList.add=('absolute', 'top-2', 'left-2');
+    // p.style =
+    // "left: " +
+    // (video.offsetWidth -
+    //     detection.boundingBox.width -
+    //     detection.boundingBox.originX) +
+    // "px;" +
+    // "top: " +
+    // (detection.boundingBox.originY - 30) +
+    // "px; " +
+    // "width: " +
+    // (detection.boundingBox.width - 10) +
+    // "px;";
 
     const highlighter = document.createElement("div");
     highlighter.setAttribute("class", "highlighter");
