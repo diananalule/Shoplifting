@@ -83,11 +83,9 @@ def verify(request):
             f.write(binary_data) 
         media_dir = 'media'
         for root, dirs, files in os.walk(media_dir):
-            print(dirs)
             for dir_name in dirs:
                 folder_path = os.path.join(root, dir_name)
                 for filename in os.listdir(folder_path):
-                    print(filename)
                     if filename.endswith('.jpg') or filename.endswith('.png'):
                         image_path = os.path.join(folder_path, filename)
                         result = DeepFace.verify(image_path, os.path.join(current_directory, 'received_image.jpg'))
