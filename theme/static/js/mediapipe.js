@@ -210,7 +210,6 @@ for (let detection of detections) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const csrftoken = getCookie('csrftoken');
         const imageDataURL = canvas.toDataURL('image/jpeg');
-        video.pause();
         fetch('/verify', {
             method: 'POST',
             headers: {
@@ -221,7 +220,7 @@ for (let detection of detections) {
         })
         .then(response => response.json())
         .then(data => {
-            
+            console.log(data)
         })
         .catch(error => {
             console.error('Error sending image to backend:');

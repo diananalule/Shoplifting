@@ -4,12 +4,13 @@ from django.contrib.auth.models import User
 import os
 
 def user_images_path(instance, filename):
-    username = instance.student.name if instance.student.name else 'unknown_user'
-    return os.path.join('images', username, filename)
+    # username = instance.student.name if instance.student.name else 'unknown_user'
+    student_number = instance.student.student_no if instance.student.student_no else 'unknown_user'
+    return os.path.join('images', student_number, filename)
 
 class Student(models.Model):
-    name = models.CharField(max_length=100)
     student_no = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     course = models.CharField(max_length=100)
     gender = models.CharField(max_length=100)
     date_added = models.DateTimeField(auto_now_add=True)

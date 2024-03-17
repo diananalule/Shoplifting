@@ -1,10 +1,12 @@
 import base64
 import io
 import json
+from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from .models import Student, Image, Attendance
+from django.core.exceptions import ObjectDoesNotExist
 import base64
 import os
 from django.core.files.base import ContentFile
@@ -24,7 +26,6 @@ def add_student(request):
     user = request.user
     return render(request, 'pages/addStudent.html', {'user': user})
 
-@login_required
 def save_student(request):
     name = request.POST['name']
     student_no = request.POST['student-number']
@@ -59,7 +60,8 @@ def students(request):
 
 def attendance(request):
     user = request.user
-    return render(request, 'pages/attendance.html', {'students': students, 'user': user})
+    attendance = Attendance.objects.filter().order_by('-date')
+    return render(request, 'pages/attendance.html', {'attendance': attendance, 'user': user})
     
 
 def sign_in_user(request):
@@ -72,27 +74,50 @@ def sign_in_user(request):
         return render(request, 'pages/home.html', {'user': user})
     
 def verify(request):
-    data = json.loads(request.body.decode('utf-8'))
-    image_data_uri = data.get('image')
-    if image_data_uri:
-        _, base64_data = image_data_uri.split(',')
-        binary_data = base64.b64decode(base64_data)
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        save_path = os.path.join(current_directory, 'received_image.jpg')
-        with open(save_path, 'wb') as f:
-            f.write(binary_data) 
-        media_dir = 'media'
-        for root, dirs, files in os.walk(media_dir):
-            for dir_name in dirs:
-                folder_path = os.path.join(root, dir_name)
-                for filename in os.listdir(folder_path):
-                    if filename.endswith('.jpg') or filename.endswith('.png'):
-                        image_path = os.path.join(folder_path, filename)
-                        result = DeepFace.verify(image_path, os.path.join(current_directory, 'received_image.jpg'))
-                        if result['verified']:
-                            print(f"Image {image_path} matches with the saved image.")
-                        else:
-                            print(f"Image {image_path} does not match with the saved image.")
-        return JsonResponse({'message': 'Image saved successfully'})
-    else:
-        return JsonResponse({'error': 'No image data found in the request'}, status=400)
+    is_in_process = True
+    if is_in_process:
+        is_in_process = False
+        models = [
+        "VGG-Face", 
+        "Facenet", 
+        "Facenet512", 
+        "OpenFace", 
+        "DeepFace", 
+        "DeepID", 
+        "ArcFace", 
+        "Dlib", 
+        "SFace",
+        "GhostFaceNet",
+        ]
+        data = json.loads(request.body.decode('utf-8'))
+        image_data_uri = data.get('image')
+        if image_data_uri:
+            _, base64_data = image_data_uri.split(',')
+            binary_data = base64.b64decode(base64_data)
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            save_path = os.path.join(current_directory, 'received_image.jpg')
+            with open(save_path, 'wb') as f:
+                f.write(binary_data) 
+            media_dir = 'media'
+            for root, dirs, files in os.walk(media_dir):
+                for dir_name in dirs:
+                    folder_path = os.path.join(root, dir_name)
+                    for filename in os.listdir(folder_path):
+                        if filename.endswith('.jpg') or filename.endswith('.png'):
+                            image_path = os.path.join(folder_path, filename)
+                            result = DeepFace.verify(img1_path = image_path,  img2_path = os.path.join(current_directory, 'received_image.jpg'), model_name = models[1], enforce_detection=False)
+                            if result['verified']:
+                                try:
+                                    if Attendance.objects.filter(date=datetime.now().date()).filter(student=Student.objects.get(student_no=dir_name)).exists():
+                                        return JsonResponse({'status':'failed', 'message': 'Student has already been verified'})
+                                except ObjectDoesNotExist:
+                                    pass
+                                Attendance.objects.create(student=Student.objects.get(student_no=dir_name))
+                                is_in_process = True
+                                return JsonResponse({'status':'success', 'message': 'Image Detected successfully', 'student':str(Student.objects.filter(student_no=dir_name).first())})
+                            else:
+                                print(f"Image {image_path} does not match with the saved image.")
+            return JsonResponse({'status':'failed', 'message': 'Image Detected successfully'})
+            is_in_process = True
+        else:
+            return JsonResponse({'status':'errror', 'error': 'No image data found in the request'}, status=400)
