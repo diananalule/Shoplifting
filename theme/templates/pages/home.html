@@ -21,7 +21,9 @@
                 <div class="flex items-center gap-2">
                     <p class="ml-3 capitalize">{{user.username}}</p>
                     <span class="text-lg"><i class="leading-3 fi fi-rr-user"></i></span>
-                    <button title="Log out" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-lg hover:bg-red-200 hover:text-red-500"><i class="leading-3 fi fi-br-power"></i></button>
+                    <form action="logout">
+                    <button type="submit" title="Log out" class="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full text-lg hover:bg-red-200 hover:text-red-500"><i class="leading-3 fi fi-br-power"></i></button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -36,16 +38,36 @@
                 <div class="absolute top-1/2 left-1/2 text-4xl">
                     <button type="button"><i id="cameraButton" class="leading-3 fi fi-sr-face-viewfinder"></i></button>
                 </div>
-                <div id="cameraView" class="bg-red-400 w-full h-full rounded-3xl">
+                <div id="cameraView" class="bg-gray-400 w-full h-full rounded-3xl">
                  <!-- place camera in this div     -->
                 </div>
-                <div id="recorded" class="absolute flex items-center justify-center h-10 px-4 text-white bg-green-500 rounded-full bottom-2 right-2">
-                    <p><i class="leading-3 fi fi-br-check"></i> Recorded</p>
+                <div>
+                <div class="absolute flex items-center gap-2  bottom-2 right-2">
+                    <div id="camera-stop" class="flex items-center justify-center h-10 px-4 text-white bg-red-500 rounded-full">
+                        <p><i class="leading-4 fi fi-rr-cross text-sm"></i> Close Camera</p>
+                    </div>
+                    <div id="recorded" class="hidden statusDiv flex items-center justify-center h-10 px-4 text-white bg-green-500 rounded-full">
+                        <p><i class="leading-3 fi fi-br-check" id="message" ></i></p>
+                    </div>
                 </div>
+                </div>
+                
             </div>
+           
         </div>
     </div>
 </body>
+
+<script>
+    document.getElementById('camera-stop').addEventListener('click', async () => {
+        var video = document.getElementById('video');
+        video.srcObject.getTracks().forEach(track => track.stop());
+    });
+
+    function logout(){
+        window.location.href = "/logout";
+    }
+</script>
 
 
 

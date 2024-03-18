@@ -22,6 +22,7 @@ let faceDetector;
 let runningMode = "IMAGE";
 var video = document.createElement('video');
 video.addEventListener("loadeddata", predictWebcam);
+video.id = 'video';
 video.setAttribute('autoplay', '');
 video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
@@ -202,7 +203,7 @@ for (let detection of detections) {
         return cookieValue;
     }
 
-    function captureAndSendImage() {
+    async function captureAndSendImage(){
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
@@ -210,21 +211,39 @@ for (let detection of detections) {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const csrftoken = getCookie('csrftoken');
         const imageDataURL = canvas.toDataURL('image/jpeg');
-        fetch('/verify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken    
-            },
-            body: JSON.stringify({ image: imageDataURL })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data)
-        })
-        .catch(error => {
-            console.error('Error sending image to backend:');
-        });
+        const message = document.getElementById('message');
+        const status = document.querySelector('.statusDiv');
+        var is_allowed_to_send = true;
+        if(is_allowed_to_send){
+            await fetch('/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken    
+                },
+                body: JSON.stringify({ image: imageDataURL })
+            })
+            .then(is_allowed_to_send = false)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if(data['status'] === 'success'){
+                    is_allowed_to_send = false;
+                    status.classList.remove('hidden')
+                    message.textContent = data['message'];
+                    
+                }
+                else{
+                    status.classList.remove('hidden')
+                    message.textContent = data['message'];
+                    is_allowed_to_send = true;
+                }
+                return data
+            })
+            .catch(error => {
+                console.error('Error sending image to backend:');
+            });
+        }
     }
 
     if(Math.round(parseFloat(detection.categories[0].score) * 100) > 90){

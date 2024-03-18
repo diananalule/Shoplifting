@@ -21,6 +21,7 @@ def home(request):
 
 def log_out(request):
     request.session.flush()
+    return redirect('/')
     
 def add_student(request):
     user = request.user
@@ -60,8 +61,8 @@ def students(request):
 
 def attendance(request):
     user = request.user
-    attendance = Attendance.objects.filter().order_by('-date')
-    return render(request, 'pages/attendance.html', {'attendance': attendance, 'user': user})
+    attendances = Attendance.objects.filter().order_by('-date')
+    return render(request, 'pages/attendance.html', {'attendances': attendances, 'user': user})
     
 
 def sign_in_user(request):

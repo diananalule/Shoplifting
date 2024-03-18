@@ -34,7 +34,7 @@
                     <h1 class="text-3xl font-bold">Students</h1>
                 </div>
                 <div class="w-full h-full">
-                    <div class="grid w-full grid-cols-5 px-2 mb-4 text-lg  font-bold">
+                    <div class="grid w-full grid-cols-4 px-2 mb-4 text-lg  font-bold">
                         <span><h1>Name</h1></span>
                         <span><h1>Cource</h1></span>
                         <span><h1>Student No</h1></span>
@@ -43,7 +43,7 @@
                     </div>
                     <div class="overflow-y-scroll h-4/5">
                         {% for student in students %}
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
+                        <div class="grid w-full grid-cols-4 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
                             <span class="capitalize">{{student.name}}</span>
                             <span>{{student.course}}</span>
                             <span>{{student.student_no}}</span>

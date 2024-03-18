@@ -46,76 +46,15 @@
                         <span><h1>Attended</h1></span>
                     </div>
                     <div class="overflow-y-scroll h-4/5">
+                        {% for attendance in attendances%}
                         <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">Kasasa roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
+                            <span class="capitalize">{{attendance.student.name}}</span>
+                            <span>{{attendance.student.course}}</span>
+                            <span>{{attendance.student.student_no}}</span>
+                            <span>{{attendance.student.gender}}</span>
+                            <span>{{attendance.date}}</span>
                         </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>21 Mar 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>16 May 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>16 May 2024</span>
-                        </div>
-                        <div class="grid w-full grid-cols-5 px-2 py-3 mb-4 bg-white shadow-lg shadow-gray-200 rounded-xl">
-                            <span class="capitalize">roy didanie</span>
-                            <span>BIT</span>
-                            <span>878448778</span>
-                            <span>Male</span>
-                            <span>16 May 2024</span>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
