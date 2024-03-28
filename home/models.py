@@ -12,6 +12,7 @@ class Student(models.Model):
     student_no = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     course = models.CharField(max_length=100)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     gender = models.CharField(max_length=100)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -29,6 +30,7 @@ class Image(models.Model):
     
 class Attendance(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    recorded_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     date = models.DateField(default=timezone.now)
     time_in = models.TimeField(default=timezone.now)
     time_out = models.TimeField(default=timezone.now)

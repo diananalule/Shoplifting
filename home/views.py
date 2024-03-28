@@ -3,7 +3,7 @@ import io
 import json
 from datetime import datetime
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from .models import Student, Image, Attendance
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,11 +17,13 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 # Create your views here.
 def home(request):
-    return render(request, 'index.html')
+    if request.user is not None:
+        return render(request, 'pages/home.html', {'user': request.user})
+    return render(request, 'index.html', {'failed':'false'})
 
 def log_out(request):
     request.session.flush()
-    return redirect('/')
+    return render(request, 'index.html', {'failed':'false'})
     
 def add_student(request):
     user = request.user
@@ -33,7 +35,7 @@ def save_student(request):
     course = request.POST['course']
     gender = request.POST['gender']
     images = request.POST['images']
-    student = Student.objects.create(name=name, student_no=student_no, course=course, gender=gender)
+    student = Student.objects.create(name=name, student_no=student_no, course=course, gender=gender, created_by=request.user)
     if images:
         images = images.split(",")
     for img_data in images:
@@ -55,13 +57,13 @@ def capture(request):
     return render(request, 'pages/home.html')
     
 def students(request):
-    students = Student.objects.all()
+    students = Student.objects.filter(created_by=request.user).order_by('-date_added')
     user = request.user
     return render(request, 'pages/students.html', {'students': students, 'user': user})
 
 def attendance(request):
     user = request.user
-    attendances = Attendance.objects.filter().order_by('-date')
+    attendances = Attendance.objects.filter(recorded_by=request.user).order_by('-date')
     return render(request, 'pages/attendance.html', {'attendances': attendances, 'user': user})
     
 
@@ -69,10 +71,11 @@ def sign_in_user(request):
     username = request.POST['name']   
     password = request.POST['password']
     user = authenticate(request, username=username, password=password)
-    if user == None:
-        return render(request, 'index.html')
-    else:
+    if user is not None:
+        login(request, user)
         return render(request, 'pages/home.html', {'user': user})
+    else:
+        return render(request, 'index.html', {'failed':'true'})
     
 def verify(request):
     is_in_process = True
@@ -113,7 +116,7 @@ def verify(request):
                                         return JsonResponse({'status':'failed', 'message': 'Student has already been verified'})
                                 except ObjectDoesNotExist:
                                     pass
-                                Attendance.objects.create(student=Student.objects.get(student_no=dir_name))
+                                Attendance.objects.create(student=Student.objects.get(student_no=dir_name), recorded_by=request.user, date=datetime.now().date(), time_in=datetime.now().time())
                                 is_in_process = True
                                 return JsonResponse({'status':'success', 'message': 'Image Detected successfully', 'student':str(Student.objects.filter(student_no=dir_name).first())})
                             else:
