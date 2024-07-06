@@ -47,7 +47,7 @@
                  <!-- place camera in this div     -->
                 </div>
                 <div>
-                <div class="absolute flex items-center gap-2 bottom-2 right-2">
+                <div id="camera-div" class="absolute flex items-center gap-2 bottom-2 right-2">
                     <div id="camera-stop" class="flex items-center justify-center hidden h-10 px-4 text-white bg-red-500 rounded-full">
                         <p>Close Camera</p>
                     </div>
@@ -56,7 +56,7 @@
                     </div>
                 </div>
             </div>
-                
+            <input type="file" id="file-input" accept="video/*" style="display:none;"> 
             </div>
            
         </div>
@@ -72,26 +72,166 @@
     function logout(){
         window.location.href = "/logout";
     }
+</script>
 
-    document.getElementById('upload').addEventListener('click', async () => {
-        var video = document.getElementById('video');
-        video.srcObject.getTracks().forEach(track => track.stop());
+
+<script>
+    document.getElementById('video-upload').addEventListener('click', () => {
+        // Trigger the file input dialog
+        document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', () => {
+        // Get the file input element
+        const fileInput = document.getElementById('file-input');
+        
+        // Check if a file is selected
+        if (fileInput.files.length === 0) {
+            alert('Please select a video file first.');
+            return;
+        }
         
         // Get the selected file from the input element
-        const fileInput = document.getElementById('file-input');
         const file = fileInput.files[0];
         
         // Create a URL for the selected file
         const fileURL = URL.createObjectURL(file);
         
-        // Set the source of the video element to the file URL
+        // Create a new video element
+        const video = document.createElement('video');
+        video.controls = true;
         video.src = fileURL;
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.style.borderRadius = '15px';
+        video.style.objectFit = 'cover';
         
         // Append the video element to the cameraView div
         const cameraView = document.getElementById('cameraView');
+        cameraView.innerHTML = ''; // Clear any previous content
         cameraView.appendChild(video);
+
+        const stopButton = document.getElementById('camera-stop');
+        const enableWebcamButton = document.getElementById('cameraButton');
+
+        stopButton.style.display = 'none';
+        enableWebcamButton.style.display = 'none';
+        
+        // Reset shoplifting count and predictions
+        shopliftingCount = 0;
+        const p = document.getElementById('model_predictions');
+        p.innerText = '';
+
+        // Play the video
+        video.play();
+        
+        // Start predicting on the video
+        video.addEventListener('play', () => {
+            showLoader();
+            predictVideoFile(video);
+        });
     });
+
+    let lastVideoTime = -1;
+    let shopliftingCount = 0;
+
+    async function detectShoplifting(imageBase64) {
+        const response = await fetch("https://detect.roboflow.com/shoplifting-yefyu/1?api_key=pJthaltwzZ3xtYeQ7V9w", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: imageBase64
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    }
+
+    async function predictVideoFile(video) {
+        if (video.currentTime !== lastVideoTime) {
+            lastVideoTime = video.currentTime;
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageBase64 = canvas.toDataURL("image/jpeg").split(",")[1]; // Remove the data URL prefix
+
+            try {
+                const detectionData = await detectShoplifting(imageBase64);
+                console.log(detectionData);
+                incrementShopliftingCount(detectionData['predictions']);
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        // Check if the video has ended
+        if (video.ended) {
+            hideLoader();
+            displayFinalResult();
+        } else {
+            // Call this function again to keep predicting when the browser is ready
+            window.requestAnimationFrame(() => predictVideoFile(video));
+        }
+    }
+
+    function incrementShopliftingCount(detections) {
+        const p = document.getElementById('model_predictions');
+        p.innerText = ''; // Clear previous predictions
+
+        for (let detection of detections) {
+            const confidence = Math.round(parseFloat(detection['confidence']) * 100);
+            const isShoplifting = detection['class_id'] != 0 || confidence < 65;
+
+            if (isShoplifting) {
+                shopliftingCount++;
+            }
+
+            p.innerText +=
+                "Prediction: " + (isShoplifting ? 'Shoplifting' : 'No Shoplifting') + '\n' +
+                "Confidence: " + confidence + "%.\n";
+        }
+    }
+
+    function displayFinalResult() {
+        const p = document.getElementById('model_predictions');
+        p.innerText = ''; // Clear previous predictions
+        if (shopliftingCount > 5) {
+            p.innerText = "Final Result: Shoplifting Detected\n" + "Count: " + shopliftingCount;
+        } else {
+            p.innerText = "Final Result: No Shoplifting Detected\n" + "Count: " + shopliftingCount;
+        }
+    }
+
+    function showLoader() {
+        const loader = document.createElement('div');
+        loader.id = 'loader';
+        loader.style.position = 'absolute';
+        loader.style.top = '50%';
+        loader.style.left = '50%';
+        loader.style.transform = 'translate(-50%, -50%)';
+        loader.style.fontSize = '24px';
+        loader.innerText = 'Analyzing...';
+        cameraView.appendChild(loader);
+    }
+
+    function hideLoader() {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.remove();
+        }
+    }
 </script>
+
+
 
 
 
