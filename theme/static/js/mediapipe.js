@@ -109,81 +109,19 @@ async function predictWebcam() {
     window.requestAnimationFrame(predictWebcam);
 }
 
-// function displayVideoDetections(detection) {
-//     const ctx = canvasOverlay.getContext('2d');
-//     ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-//     const confidence = detection[0]['confidence']
-//     const x = detection[0]['x']
-//     const y = detection[0]['y']
-//     const width = detection[0]['width']
-//     const height = detection[0]['height']
-
-//     canvasOverlay.width = video.videoWidth;
-//     canvasOverlay.height = video.videoHeight;
-
-//     video.style.width = '100%';
-//     video.style.height = '100%';
-//     video.style.objectFit = 'cover';
-//     liveView.appendChild(video);
-//     drawBoundingBox(x, y, width, height, confidence);
-//     video.play();
-// }
-
-// function drawBoundingBox(x, y, width, height, confidence) {
-//     const ctx = canvasOverlay.getContext('2d');
-//     ctx.strokeStyle = 'red';
-//     ctx.lineWidth = 2;
-//     console.log(x, y, width, height, confidence);
-//     ctx.strokeRect(
-//         x * canvasOverlay.width,
-//         y * canvasOverlay.height,
-//         width * canvasOverlay.width,
-//         height * canvasOverlay.height
-//     );
-// }
-
 function displayVideoDetections(detections) {
-
-    for (let child of children) {
-        liveView.removeChild(child);
-    }
-    children.splice(0);
 
     for (let detection of detections) {
         const p = document.getElementById('model_predictions');
         p.innerText =
         "Prediction: " + (detection['class_id'] != 0 ? 'Shoplifting' : 'No Shoplifting') + '\n' +
         "Confidence: " + Math.round(parseFloat(detection['confidence']) * 100) + "%.";
-        // p.classList.add = ('absolute', 'text-white', 'text-lg', 'font-bold', 'bg-gray-800', 'p-2', 'rounded', 'border', 'border-gray-900', 'shadow-lg', 'top-0', 'left-0', 'm-2', 'z-10');
-
-        const highlighter = document.createElement("div");
-        highlighter.setAttribute("class", "highlighter");
-        highlighter.style =
-            "left: " +
-            (video.offsetWidth -
-                detection['width'] -
-                detection['x']) +
-            "px;" +
-            "top: " +
-            detection['y'] +
-            "px;" +
-            "width: " +
-            (detection['weight'] - 10) +
-            "px;" +
-            "height: " +
-            detection['height'] +
-            "px;";
-
-        //liveView.appendChild(highlighter);
-        //liveView.appendChild(p);
         video.style.width = '100%';
         video.style.height = '100%';
         video.style.objectFit = 'cover';
-
-
-        children.push(highlighter);
         liveView.appendChild(video);
         video.play();
+        
         
 
         // function getCookie(name) {
