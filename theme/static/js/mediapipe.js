@@ -1,24 +1,3 @@
-// Copyright 2023 The MediaPipe Authors.
-
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-
-//      http://www.apache.org/licenses/LICENSE-2.0
-
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-import {
-    FaceDetector,
-    FilesetResolver,
-} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
-
-
-let faceDetector;
 let runningMode = "IMAGE";
 var video = document.createElement('video');
 video.addEventListener("loadeddata", predictWebcam);
@@ -28,24 +7,16 @@ video.setAttribute('muted', '');
 video.setAttribute('playsinline', '');
 video.style.borderRadius = '15px';
 
-// Initialize the object detector
-const initializefaceDetector = async () => {
-    const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
-    );
-    faceDetector = await FaceDetector.createFromOptions(vision, {
-        baseOptions: {
-            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite`,
-            delegate: "GPU"
-        },
-        runningMode: runningMode
-    });
-};
-initializefaceDetector();
-
 //let video = document.getElementById("webcam");
 const liveView = document.getElementById("cameraView");
 let enableWebcamButton;
+
+const canvasOverlay = document.createElement('canvas');
+canvasOverlay.style.position = 'absolute';
+canvasOverlay.style.top = '0';
+canvasOverlay.style.left = '0';
+canvasOverlay.style.borderRadius = '15px';
+liveView.appendChild(canvasOverlay);
 
 // Check if webcam access is supported.
 const hasGetUserMedia = () => !!navigator.mediaDevices?.getUserMedia;
@@ -70,10 +41,6 @@ async function enableCam(event) {
     cameraButton.style.display = 'none';
     //recorded = document.getElementById('recorded');
     //recorded.style.display = 'none';
-    if (!faceDetector) {
-        alert("Face Detector is still loading. Please try again..");
-        return;
-    }
 
     // Hide the button.
     enableWebcamButton.classList.add("removed");
@@ -96,165 +63,197 @@ async function enableCam(event) {
 
 
 let lastVideoTime = -1;
-async function predictWebcam() {
-    // if image mode is initialized, create a new classifier with video runningMode
-    if (runningMode === "IMAGE") {
-        runningMode = "VIDEO";
-        await faceDetector.setOptions({ runningMode: "VIDEO" });
-    }
-    let startTimeMs = performance.now();
 
-    // Detect faces using detectForVideo
+async function detectShoplifting(imageBase64) {
+    const response = await fetch("https://detect.roboflow.com/shoplifting-yefyu/1?api_key=pJthaltwzZ3xtYeQ7V9w", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: imageBase64
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+}
+
+
+
+
+async function predictWebcam() {
     if (video.currentTime !== lastVideoTime) {
         lastVideoTime = video.currentTime;
-        const detections = faceDetector.detectForVideo(video, startTimeMs)
-            .detections;
-        displayVideoDetections(detections);
+
+        // Capture the current frame from the video
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageBase64 = canvas.toDataURL("image/jpeg").split(",")[1]; // Remove the data URL prefix
+
+        try {
+            const detectionData = await detectShoplifting(imageBase64);
+            console.log(detectionData);
+            displayVideoDetections(detectionData['predictions']);
+        } catch (error) {
+            console.log(error.message);
+        }
     }
 
     // Call this function again to keep predicting when the browser is ready
     window.requestAnimationFrame(predictWebcam);
 }
 
+// function displayVideoDetections(detection) {
+//     const ctx = canvasOverlay.getContext('2d');
+//     ctx.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
+//     const confidence = detection[0]['confidence']
+//     const x = detection[0]['x']
+//     const y = detection[0]['y']
+//     const width = detection[0]['width']
+//     const height = detection[0]['height']
+
+//     canvasOverlay.width = video.videoWidth;
+//     canvasOverlay.height = video.videoHeight;
+
+//     video.style.width = '100%';
+//     video.style.height = '100%';
+//     video.style.objectFit = 'cover';
+//     liveView.appendChild(video);
+//     drawBoundingBox(x, y, width, height, confidence);
+//     video.play();
+// }
+
+// function drawBoundingBox(x, y, width, height, confidence) {
+//     const ctx = canvasOverlay.getContext('2d');
+//     ctx.strokeStyle = 'red';
+//     ctx.lineWidth = 2;
+//     console.log(x, y, width, height, confidence);
+//     ctx.strokeRect(
+//         x * canvasOverlay.width,
+//         y * canvasOverlay.height,
+//         width * canvasOverlay.width,
+//         height * canvasOverlay.height
+//     );
+// }
 
 function displayVideoDetections(detections) {
-    // Remove any highlighting from previous frame.
 
     for (let child of children) {
         liveView.removeChild(child);
     }
     children.splice(0);
 
-    // Iterate through predictions and draw them to the live view
-    // liveView.innerHTML = "";
-    // liveView.classList = "";
     for (let detection of detections) {
-        const p = document.createElement("p");
+        const p = document.getElementById('model_predictions');
         p.innerText =
-            "Confidence: " +
-            Math.round(parseFloat(detection.categories[0].score) * 100) +
-            "% .";
-        p.classList.add = ('absolute', 'top-2', 'left-2');
-        // p.style =
-        // "left: " +
-        // (video.offsetWidth -
-        //     detection.boundingBox.width -
-        //     detection.boundingBox.originX) +
-        // "px;" +
-        // "top: " +
-        // (detection.boundingBox.originY - 30) +
-        // "px; " +
-        // "width: " +
-        // (detection.boundingBox.width - 10) +
-        // "px;";
+        "Prediction: " + (detection['class_id'] != 0 ? 'Shoplifting' : 'No Shoplifting') + '\n' +
+        "Confidence: " + Math.round(parseFloat(detection['confidence']) * 100) + "%.";
+        // p.classList.add = ('absolute', 'text-white', 'text-lg', 'font-bold', 'bg-gray-800', 'p-2', 'rounded', 'border', 'border-gray-900', 'shadow-lg', 'top-0', 'left-0', 'm-2', 'z-10');
 
         const highlighter = document.createElement("div");
         highlighter.setAttribute("class", "highlighter");
         highlighter.style =
             "left: " +
             (video.offsetWidth -
-                detection.boundingBox.width -
-                detection.boundingBox.originX) +
+                detection['width'] -
+                detection['x']) +
             "px;" +
             "top: " +
-            detection.boundingBox.originY +
+            detection['y'] +
             "px;" +
             "width: " +
-            (detection.boundingBox.width - 10) +
+            (detection['weight'] - 10) +
             "px;" +
             "height: " +
-            detection.boundingBox.height +
+            detection['height'] +
             "px;";
 
-        liveView.appendChild(highlighter);
-        liveView.appendChild(p);
+        //liveView.appendChild(highlighter);
+        //liveView.appendChild(p);
         video.style.width = '100%';
         video.style.height = '100%';
         video.style.objectFit = 'cover';
 
 
-        // Store drawn objects in memory so they are queued to delete at next call
         children.push(highlighter);
-        children.push(p);
-        for (let keypoint of detection.keypoints) {
-            const keypointEl = document.createElement("spam");
-            keypointEl.className = "key-point";
-            keypointEl.style.top = `${keypoint.y * video.offsetHeight - 3}px`;
-            keypointEl.style.left = `${video.offsetWidth - keypoint.x * video.offsetWidth - 3
-                }px`;
-            liveView.appendChild(keypointEl);
-            liveView.appendChild(video);
-            video.play();
-            children.push(keypointEl);
-        }
+        liveView.appendChild(video);
+        video.play();
+        
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Check if the cookie name matches the desired name
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
+        // function getCookie(name) {
+        //     let cookieValue = null;
+        //     if (document.cookie && document.cookie !== '') {
+        //         const cookies = document.cookie.split(';');
+        //         for (let i = 0; i < cookies.length; i++) {
+        //             const cookie = cookies[i].trim();
+        //             // Check if the cookie name matches the desired name
+        //             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        //                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        //                 break;
+        //             }
+        //         }
+        //     }
+        //     return cookieValue;
+        // }
 
-        async function captureAndSendImage() {
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const csrftoken = getCookie('csrftoken');
-            const imageDataURL = canvas.toDataURL('image/jpeg');
-            const message = document.getElementById('message');
-            const status = document.querySelector('.statusDiv');
-            var is_allowed_to_send = true;
-            if (is_allowed_to_send) {
-                await fetch('/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({ image: imageDataURL })
-                })
-                    .then(is_allowed_to_send = false)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        if (data['status'] === 'success') {
-                            is_allowed_to_send = false;
-                            status.classList.remove('hidden')
-                            message.textContent = data['message'];
+        // async function captureAndSendImage() {
+        //     const canvas = document.createElement('canvas');
+        //     const context = canvas.getContext('2d');
+        //     canvas.width = video.videoWidth;
+        //     canvas.height = video.videoHeight;
+        //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        //     const csrftoken = getCookie('csrftoken');
+        //     const imageDataURL = canvas.toDataURL('image/jpeg');
+        //     const message = document.getElementById('message');
+        //     const status = document.querySelector('.statusDiv');
+        //     var is_allowed_to_send = true;
+        //     if (is_allowed_to_send) {
+        //         await fetch('/verify', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'X-CSRFToken': csrftoken
+        //             },
+        //             body: JSON.stringify({ image: imageDataURL })
+        //         })
+        //             .then(is_allowed_to_send = false)
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 console.log(data);
+        //                 if (data['status'] === 'success') {
+        //                     is_allowed_to_send = false;
+        //                     status.classList.remove('hidden')
+        //                     message.textContent = data['message'];
 
-                        }
-                        else {
-                            status.classList.remove('hidden')
-                            message.textContent = data['message'];
-                            is_allowed_to_send = true;
-                        }
+        //                 }
+        //                 else {
+        //                     status.classList.remove('hidden')
+        //                     message.textContent = data['message'];
+        //                     is_allowed_to_send = true;
+        //                 }
 
-                        setTimeout(() => {
-                            status.classList.add('hidden');
-                        }, 5000);
+        //                 setTimeout(() => {
+        //                     status.classList.add('hidden');
+        //                 }, 5000);
                         
-                        return data
-                    })
-                    .catch(error => {
-                        console.error('Error sending image to backend:');
-                    });
-            }
-        }
+        //                 return data
+        //             })
+        //             .catch(error => {
+        //                 console.error('Error sending image to backend:');
+        //             });
+        //     }
+        // }
 
-        if (Math.round(parseFloat(detection.categories[0].score) * 100) > 90) {
-            captureAndSendImage();
-        }
+        // if (Math.round(parseFloat(detection.categories[0].score) * 100) > 90) {
+        //     captureAndSendImage();
+        // }
     }
 
 }
+

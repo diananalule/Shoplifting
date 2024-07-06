@@ -12,12 +12,12 @@ import os
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
-from deepface import DeepFace
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.utils.datastructures import MultiValueDictKeyError
 
 # Create your views here.
 def home(request):
-    if request.user is not None:
+    if  request.user.is_authenticated:
         return render(request, 'pages/home.html', {'user': request.user})
     return render(request, 'index.html', {'failed':'false'})
 
@@ -30,28 +30,31 @@ def add_student(request):
     return render(request, 'pages/addStudent.html', {'user': user})
 
 def save_student(request):
-    name = request.POST['name']
-    student_no = request.POST['student-number']
-    course = request.POST['course']
-    gender = request.POST['gender']
-    images = request.POST['images']
-    student = Student.objects.create(name=name, student_no=student_no, course=course, gender=gender, created_by=request.user)
-    if images:
-        images = images.split(",")
-    for img_data in images:
-        img_data = img_data.strip()
-        try:
-            img_data = base64.b64decode(img_data) 
-        except base64.binascii.Error:
-            continue 
-        img_io = io.BytesIO(img_data)  
-        image_name = f"name/{student_no}_image.png"  
-        image_file = ContentFile(img_io.getvalue(), name=image_name)  
-        uploaded_file = InMemoryUploadedFile(image_file, None, image_name, 'image/png', len(img_data), None)
-        image = Image(student=student, image=uploaded_file)
-        image.save()
-    students = Student.objects.all()
-    return redirect('/students')
+    try:
+        name = request.POST['name']
+        student_no = request.POST['student-number']
+        course = request.POST['course']
+        gender = request.POST['gender']
+        images = request.POST['images']
+        student = Student.objects.create(name=name, student_no=student_no, course=course, gender=gender, created_by=request.user)
+        if images:
+            images = images.split(",")
+        for img_data in images:
+            img_data = img_data.strip()
+            try:
+                img_data = base64.b64decode(img_data) 
+            except base64.binascii.Error:
+                continue 
+            img_io = io.BytesIO(img_data)  
+            image_name = f"name/{student_no}_image.png"  
+            image_file = ContentFile(img_io.getvalue(), name=image_name)  
+            uploaded_file = InMemoryUploadedFile(image_file, None, image_name, 'image/png', len(img_data), None)
+            image = Image(student=student, image=uploaded_file)
+            image.save()
+        students = Student.objects.filter(created_by=request.user).order_by('-date_added')
+        return render(request, 'pages/students.html', {'students': students, 'user': request.user})
+    except MultiValueDictKeyError:
+        return render(request, 'pages/addStudent.html', {'error': 'No image data found in the request', 'user': request.user})
 
 def capture(request):
     return render(request, 'pages/home.html')

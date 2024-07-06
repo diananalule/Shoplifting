@@ -6,16 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static/css/dist/output.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"crossorigin="anonymous"></script>
     <script type="module" async src="{% static '/js/mediapipe.js' %}" type="text/javascript"></script>
-    <link href="/static/css/mediapipe.css" rel="stylesheet">
     <title>FRAS</title>
 </head>
 <body>
     <div class="w-full h-screen py-4 px-14">
         <div class="flex items-center justify-between w-full">
             <div>
-                <img src="{% static '/assets/atvault.svg' %}" alt="" srcset="">
+                <img src="{% static '/assets/atvault.svg' %}" alt="" srcset="" height="150px" width="150px">
             </div>
             <div class="flex items-center justify-center px-1 py-1 rounded-full shadow-lg shadow-gray-200">
                 <div class="flex items-center gap-2">
@@ -27,12 +25,18 @@
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-10 mt-10 h-4/5">
+        <div class="flex items-center">
+            <div class="flex">
+                <p class="text-white">Home</p>
+                <p class="mx-2 text-white">/</p>
+                <p class="text-white">Real Time</p>
+            </div>
+            <h5 id="model_predictions" class="text-4xl font-bold"></h5>
+        </div>
+        <div class="flex items-center gap-5 mt-5 h-4/5">
             <div class="flex flex-col gap-4">
-                <span class="flex items-center gap-3 group"><a href="home"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg text-white rounded-full shadow-lg shadow-gray-200 bg-myBlue"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack sele">Capture</p></span>
-                <span class="flex items-center gap-3 group"><a href="attendance"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack sele">Attendance</p></span>
-                <span class="flex items-center gap-3 group"><a href="students"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user"></i></button></a><p class="text-white group-hover:text-myBlack sele">Students</p></span>
-                <span class="flex items-center gap-3 group"><a href="add_student"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-user-add"></i></button></a><p class="text-white group-hover:text-myBlack sele">Add</p></span>
+                <span class="flex items-center gap-3 group"><a href="home"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg text-white rounded-full shadow-lg shadow-gray-200 bg-myBlue"><i class="leading-3 fi fi-sr-face-viewfinder"></i></button></a><p class="text-white group-hover:text-myBlack sele">Real Time</p></span>
+                <span class="flex items-center gap-3 group"><a href="attendance"><button type="button" class="flex items-center justify-center w-12 h-12 text-lg rounded-full shadow-lg shadow-gray-200 hover:bg-myBlue hover:text-white"><i class="leading-3 fi fi-sr-to-do"></i></button></a><p class="text-white group-hover:text-myBlack sele">Upload</p></span>
             </div>
             <div class="relative w-full h-full bg-gray-200 border border-gray-200 rounded-3xl">
                 <div class="absolute text-4xl top-1/2 left-1/2">
@@ -50,7 +54,7 @@
                         <p><i class="leading-3 fi fi-br-check" id="message" ></i></p>
                     </div>
                 </div>
-                </div>
+            </div>
                 
             </div>
            
