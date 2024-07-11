@@ -63,6 +63,7 @@ async function enableCam(event) {
 
 
 let lastVideoTime = -1;
+let messageSent = false
 
 async function detectShoplifting(imageBase64) {
     const response = await fetch("https://detect.roboflow.com/shoplifting-yefyu/1?api_key=pJthaltwzZ3xtYeQ7V9w", {
@@ -109,18 +110,77 @@ async function predictWebcam() {
     window.requestAnimationFrame(predictWebcam);
 }
 
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Check if the cookie name matches the desired name
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+async function captureAndSendImage() {
+    const csrftoken = getCookie('csrftoken');
+    var messageSent = false;
+    if (!messageSent) {
+        await fetch('/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({})
+        })
+            .then(messageSent = true)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data['status'] === 'success') {
+                    messageSent = true
+                    message.textContent = data['message'];
+
+                }
+                else {
+                    status.classList.remove('hidden')
+                    message.textContent = data['message'];
+                    messageSent = false;
+                }
+
+                setTimeout(() => {
+                }, 5000);
+                
+                return data
+            })
+            .catch(error => {
+                console.error('Error sending image to backend:');
+            });
+    }
+}
+
 function displayVideoDetections(detections) {
+
+    video.play();
 
     for (let detection of detections) {
         const p = document.getElementById('model_predictions');
         p.innerText =
         "Prediction: " + (detection['class_id'] != 0 ? 'Shoplifting' : 'No Shoplifting') + '\n' +
         "Confidence: " + Math.round(parseFloat(detection['confidence']) * 100) + "%.";
+        if (Math.round(parseFloat(detection['confidence']) * 100) > 80 &  !messageSent) {
+            messageSent = true
+            captureAndSendImage();
+        }
         video.style.width = '100%';
         video.style.height = '100%';
         video.style.objectFit = 'cover';
         liveView.appendChild(video);
-        video.play();
     }
 
 }

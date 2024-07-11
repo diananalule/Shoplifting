@@ -14,6 +14,8 @@ from django.http import JsonResponse
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.utils.datastructures import MultiValueDictKeyError
+import http.client
+import json
 
 # Create your views here.
 def home(request):
@@ -81,50 +83,28 @@ def sign_in_user(request):
         return render(request, 'index.html', {'failed':'true'})
     
 def verify(request):
-    is_in_process = True
-    if is_in_process:
-        is_in_process = False
-        models = [
-        "VGG-Face", 
-        "Facenet", 
-        "Facenet512", 
-        "OpenFace", 
-        "DeepFace", 
-        "DeepID", 
-        "ArcFace", 
-        "Dlib", 
-        "SFace",
-        "GhostFaceNet",
+    conn = http.client.HTTPSConnection( "8gw2rr.api.infobip.com")
+    payload = json.dumps({
+        "messages": [
+            {
+                "destinations": [
+                    {
+                        "to": "+256758237196"
+                    }
+                ],
+                "from": "InfoSMS",
+                "text": "Attention: Suspicious activity detected. Please review your surveillance footage immediately for any unusual behavior or potential security breaches. If anything concerning is found, contact security or law enforcement right away. Ensure to save and back up the footage for further investigation. Your prompt attention is crucial. Stay vigilant and safe."
+            }
         ]
-        data = json.loads(request.body.decode('utf-8'))
-        image_data_uri = data.get('image')
-        if image_data_uri:
-            _, base64_data = image_data_uri.split(',')
-            binary_data = base64.b64decode(base64_data)
-            current_directory = os.path.dirname(os.path.abspath(__file__))
-            save_path = os.path.join(current_directory, 'received_image.jpg')
-            with open(save_path, 'wb') as f:
-                f.write(binary_data) 
-            media_dir = 'media'
-            for root, dirs, files in os.walk(media_dir):
-                for dir_name in dirs:
-                    folder_path = os.path.join(root, dir_name)
-                    for filename in os.listdir(folder_path):
-                        if filename.endswith('.jpg') or filename.endswith('.png'):
-                            image_path = os.path.join(folder_path, filename)
-                            result = DeepFace.verify(img1_path = image_path,  img2_path = os.path.join(current_directory, 'received_image.jpg'), model_name = models[1], enforce_detection=False)
-                            if result['verified']:
-                                try:
-                                    if Attendance.objects.filter(date=datetime.now().date()).filter(student=Student.objects.get(student_no=dir_name)).exists():
-                                        return JsonResponse({'status':'failed', 'message': 'Student has already been verified'})
-                                except ObjectDoesNotExist:
-                                    pass
-                                Attendance.objects.create(student=Student.objects.get(student_no=dir_name), recorded_by=request.user, date=datetime.now().date(), time_in=datetime.now().time())
-                                is_in_process = True
-                                return JsonResponse({'status':'success', 'message': 'Image Detected successfully', 'student':str(Student.objects.filter(student_no=dir_name).first())})
-                            else:
-                                print(f"Image {image_path} does not match with the saved image.")
-            return JsonResponse({'status':'failed', 'message': 'Image Detected successfully'})
-            is_in_process = True
-        else:
-            return JsonResponse({'status':'errror', 'error': 'No image data found in the request'}, status=400)
+    })
+    headers = {
+        'Authorization': "App 5ca985a8a07f37684be5df1d37440fad-e7b6789e-ca0d-4afa-b832-6ec888bd64c9",
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    conn.request("POST", "/sms/2/text/advanced", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    print(data.decode("utf-8"))
+    print("message")
+    return JsonResponse({'status':'success', 'message': "sms_response"}, status=200)
